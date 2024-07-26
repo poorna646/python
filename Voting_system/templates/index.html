@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Voting System</h1>
+        
+        <div class="vote-section">
+            <h2>Vote for Your Favorite Candidate</h2>
+            <form id="voteForm">
+                <label>
+                    <input type="radio" name="candidate" value="Candidate1" required> Candidate1
+                </label>
+                <label>
+                    <input type="radio" name="candidate" value="Candidate2"> Candidate2
+                </label>
+                <label>
+                    <input type="radio" name="candidate" value="Candidate3"> Candidate3
+                </label>
+                <button type="submit">Vote</button>
+            </form>
+        </div>
+
+        <div class="results-section">
+            <button id="showResults">Show Results</button>
+            <div id="results"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('voteForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const selectedCandidate = document.querySelector('input[name="candidate"]:checked').value;
+            fetch('/vote', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({ 'candidate': selectedCandidate })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message))
+            .catch(error => alert('Error: ' + error.message));
+        });
+
+        document.getElementById('showResults').addEventListener('click', function() {
+            fetch('/results')
+                .then(response => response.json())
+                .then(data => {
+                    const results = Object.entries(data)
+                        .map(([candidate, votes]) => `${candidate}: ${votes}`)
+                        .join('<br>');
+                    document.getElementById('results').innerHTML = results;
+                });
+        });
+    </script>
+</body>
+</html>
